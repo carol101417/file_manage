@@ -56,6 +56,10 @@ file_manage/
 ├── docker-compose.yml
 ├── docker-compose.offline.yml   # 离线部署配置
 ├── build-and-package.bat        # 一键构建打包脚本
+├── deploy.sh                    # 一键部署脚本（Linux/macOS）
+├── deploy.bat                   # 一键部署脚本（Windows）
+├── stop.sh                      # 停止服务脚本（Linux/macOS）
+├── stop.bat                     # 停止服务脚本（Windows）
 └── 安装文档-offline.txt          # 快速安装说明
 ```
 
@@ -101,6 +105,56 @@ docker-compose -f docker-compose.offline.yml up -d
 - 默认管理员账号：`admin` / `Admin123!`
 
 > **重要**：首次登录后请立即修改默认密码（右上角用户菜单 → Change Password），或创建新管理员账户后删除默认账户。
+
+---
+
+## 非 Docker 部署（一键脚本）
+
+适用于没有 Docker 的服务器环境，仅需 **Node.js 18+**。
+
+### Linux / macOS
+
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+### Windows
+
+双击 `deploy.bat` 或在终端中运行：
+
+```cmd
+deploy.bat
+```
+
+### 脚本自动完成
+
+1. 检测 Node.js 版本
+2. 安装前后端依赖
+3. 构建前端静态文件
+4. 生成安全的 `.env` 配置（含随机 JWT 密钥）
+5. 安装 PM2 进程管理器（可选）
+6. 启动服务并进行健康检查
+
+部署完成后访问 `http://localhost:3000`（前端 + API 一体）。
+
+### 管理服务
+
+```bash
+# 停止服务
+./stop.sh          # Linux/macOS
+stop.bat           # Windows
+
+# PM2 管理（如果安装了 PM2）
+pm2 status              # 查看状态
+pm2 logs file-share     # 查看日志
+pm2 restart file-share  # 重启服务
+pm2 stop file-share     # 停止服务
+
+# 开机自启（Linux）
+pm2 startup
+pm2 save
+```
 
 ---
 
