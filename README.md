@@ -2,6 +2,36 @@
 
 轻量级企业内网文件共享系统。基于 Node.js + Express + Vue 3 + SQLite 构建。
 
+## 快速部署
+
+前置条件：**Node.js 18+** 和 **Git**
+
+**Linux / macOS：**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/carol101417/file_manage/master/install.sh | bash
+```
+
+**Windows (PowerShell)：**
+
+```powershell
+irm https://raw.githubusercontent.com/carol101417/file_manage/master/install.ps1 | iex
+```
+
+自定义安装目录：
+
+```bash
+# Linux/macOS
+INSTALL_DIR=/opt/file_manage curl -fsSL https://raw.githubusercontent.com/carol101417/file_manage/master/install.sh | bash
+
+# Windows PowerShell
+$env:INSTALL_DIR="D:\file_manage"; irm https://raw.githubusercontent.com/carol101417/file_manage/master/install.ps1 | iex
+```
+
+部署完成后访问 `http://localhost:3000`，默认管理员：`admin` / `Admin123!`
+
+---
+
 ## 功能特性
 
 - **用户认证**：JWT Token 认证，角色权限控制（Admin / User）
