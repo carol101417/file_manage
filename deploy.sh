@@ -47,17 +47,23 @@ ok "npm $(npm -v) detected"
 # ---------- 3. Install backend dependencies ----------
 info "Installing backend dependencies..."
 cd "$SCRIPT_DIR/backend"
-npm install --production 2>&1 | tail -1
+if ! npm install --production; then
+  fail "Backend dependency installation failed. Check the log above for details."
+fi
 ok "Backend dependencies installed"
 
 # ---------- 4. Install frontend dependencies & build ----------
 info "Installing frontend dependencies..."
 cd "$SCRIPT_DIR/frontend"
-npm install 2>&1 | tail -1
+if ! npm install; then
+  fail "Frontend dependency installation failed."
+fi
 ok "Frontend dependencies installed"
 
 info "Building frontend..."
-npm run build 2>&1 | tail -3
+if ! npm run build; then
+  fail "Frontend build failed."
+fi
 if [ ! -d "$SCRIPT_DIR/frontend/dist" ]; then
   fail "Frontend build failed - dist/ directory not found"
 fi
