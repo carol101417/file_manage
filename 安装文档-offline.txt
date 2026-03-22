@@ -1,0 +1,19 @@
+1.解压 file_manage-offline-package.zip 到一个目录（建议目录名就叫 file_manage），把 file_manage-images.tar 也放到同目录（放到file_manage里面）
+
+2.导入镜像：
+打开终端，输入指令  docker load -i file_manage-images.tar
+
+3.设置密钥（必须）：
+  先生成一个随机密钥：openssl rand -base64 64
+  然后创建 .env 文件（与 docker-compose.offline.yml 同目录），写入：
+  JWT_SECRET=你生成的密钥
+
+4.启动：
+在终端中输入 docker-compose -f docker-compose.offline.yml up -d
+
+5.如果没有 docker-compose 命令，用：docker compose -f docker-compose.offline.yml up -d
+
+6.启动成功，访问链接：
+前端：http://localhost:8080
+后端：http://localhost:3000/api/health
+默认管理员：admin / Admin123!（请首次登录后立即修改密码）
