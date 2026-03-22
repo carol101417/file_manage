@@ -2,9 +2,24 @@
 
 轻量级企业内网文件共享系统。基于 Node.js + Express + Vue 3 + SQLite 构建。
 
-## 快速部署
+## 功能特性
 
-前置条件：**Node.js 18+** 和 **Git**
+- **用户认证** — JWT Token，Admin / User 角色权限
+- **文件管理** — 拖拽上传、搜索、下载追踪、分页浏览
+- **公开分享** — 生成无需登录的下载链接
+- **用户管理** — 管理员创建/删除用户、重置密码
+- **安全加固** — 登录限流、Token 黑名单、文件类型过滤、操作审计日志
+- **响应式 UI** — Element Plus + 中英双语
+
+---
+
+## 部署
+
+> 默认管理员：`admin` / `Admin123!`，首次登录后请立即修改密码。
+
+### 方式一：一条命令部署（推荐）
+
+前置条件：**Node.js 18+** + **Git**
 
 **Linux / macOS：**
 
@@ -12,7 +27,7 @@
 curl -fsSL https://raw.githubusercontent.com/carol101417/file_manage/master/install.sh | bash
 ```
 
-**Windows (PowerShell)：**
+**Windows PowerShell：**
 
 ```powershell
 irm https://raw.githubusercontent.com/carol101417/file_manage/master/install.ps1 | iex
@@ -21,205 +36,155 @@ irm https://raw.githubusercontent.com/carol101417/file_manage/master/install.ps1
 自定义安装目录：
 
 ```bash
-# Linux/macOS
 INSTALL_DIR=/opt/file_manage curl -fsSL https://raw.githubusercontent.com/carol101417/file_manage/master/install.sh | bash
+```
 
-# Windows PowerShell
+```powershell
 $env:INSTALL_DIR="D:\file_manage"; irm https://raw.githubusercontent.com/carol101417/file_manage/master/install.ps1 | iex
 ```
 
-部署完成后访问 `http://localhost:3000`，默认管理员：`admin` / `Admin123!`
+部署完成后访问 **http://localhost:3000**
 
----
+### 方式二：本地脚本部署
 
-## 功能特性
-
-- **用户认证**：JWT Token 认证，角色权限控制（Admin / User）
-- **文件上传/下载**：拖拽上传、进度显示、下载追踪
-- **公开分享**：生成可分享链接，无需登录即可下载
-- **密码管理**：用户修改自己的密码，管理员重置其他用户密码
-- **用户管理**：管理员创建/删除用户、分配角色
-- **文件搜索**：按文件名搜索
-- **下载日志**：追踪下载记录（IP、时间、用户）
-- **响应式 UI**：Element Plus 组件库
-
-## 技术栈
-
-| 层级 | 技术 |
-|------|------|
-| 后端 | Node.js + Express |
-| 数据库 | SQLite |
-| 认证 | JWT + bcryptjs |
-| 文件处理 | Multer |
-| 前端 | Vue 3 + Element Plus |
-| 状态管理 | Pinia |
-| 构建工具 | Vite |
-| 部署 | Docker + Nginx |
-
-## 项目结构
-
-```
-file_manage/
-├── backend/
-│   ├── src/
-│   │   ├── config/          # 数据库配置
-│   │   ├── controllers/     # 控制器 (auth/file/user)
-│   │   ├── middleware/      # 认证中间件
-│   │   ├── models/          # 数据模型 (User/File/DownloadLog)
-│   │   ├── routes/          # 路由 (auth/files/users)
-│   │   └── app.js           # 应用入口
-│   ├── uploads/             # 文件存储目录
-│   ├── Dockerfile
-│   ├── package.json
-│   └── .env                 # 环境变量
-├── frontend/
-│   ├── src/
-│   │   ├── api/             # API 请求封装
-│   │   ├── views/           # 页面 (Login/Home/Upload/Files/Users/ChangePassword)
-│   │   ├── router/          # 路由配置
-│   │   ├── store/           # Pinia 状态管理
-│   │   ├── App.vue          # 根组件
-│   │   └── main.js          # 入口文件
-│   ├── Dockerfile
-│   ├── nginx.conf           # Nginx 配置
-│   └── package.json
-├── docker-compose.yml
-├── docker-compose.offline.yml   # 离线部署配置
-├── build-and-package.bat        # 一键构建打包脚本
-├── deploy.sh                    # 一键部署脚本（Linux/macOS）
-├── deploy.bat                   # 一键部署脚本（Windows）
-├── stop.sh                      # 停止服务脚本（Linux/macOS）
-├── stop.bat                     # 停止服务脚本（Windows）
-└── 安装文档-offline.txt          # 快速安装说明
-```
-
----
-
-## 离线部署（生产环境）
-
-### 前置条件
-
-目标服务器已安装 Docker Engine + Docker Compose。
-
-### 第 1 步：导入镜像
+已克隆仓库的情况下，直接运行部署脚本：
 
 ```bash
-docker load -i file_manage-images.tar
-```
+# Linux/macOS
+chmod +x deploy.sh && ./deploy.sh
 
-### 第 2 步：修改配置
-
-在 `docker-compose.offline.yml` 同目录下创建 `.env` 文件，设置 JWT 密钥：
-
-```bash
-# .env 文件内容
-JWT_SECRET=替换为你自己的长随机字符串
-```
-
-生成随机密钥的方法：
-
-```bash
-openssl rand -base64 64
-```
-
-### 第 3 步：启动服务
-
-```bash
-docker-compose -f docker-compose.offline.yml up -d
-```
-
-### 第 4 步：访问
-
-- 前端：`http://localhost:8080`
-- 后端健康检查：`http://localhost:3000/api/health`
-- 默认管理员账号：`admin` / `Admin123!`
-
-> **重要**：首次登录后请立即修改默认密码（右上角用户菜单 → Change Password），或创建新管理员账户后删除默认账户。
-
----
-
-## 非 Docker 部署（一键脚本）
-
-适用于没有 Docker 的服务器环境，仅需 **Node.js 18+**。
-
-### Linux / macOS
-
-```bash
-chmod +x deploy.sh
-./deploy.sh
-```
-
-### Windows
-
-双击 `deploy.bat` 或在终端中运行：
-
-```cmd
+# Windows
 deploy.bat
 ```
 
-### 脚本自动完成
+### 方式三：Docker 部署
 
-1. 检测 Node.js 版本
-2. 安装前后端依赖
-3. 构建前端静态文件
-4. 生成安全的 `.env` 配置（含随机 JWT 密钥）
-5. 安装 PM2 进程管理器（可选）
-6. 启动服务并进行健康检查
-
-部署完成后访问 `http://localhost:3000`（前端 + API 一体）。
-
-### 管理服务
+前置条件：**Docker Engine** + **Docker Compose**
 
 ```bash
-# 停止服务
-./stop.sh          # Linux/macOS
-stop.bat           # Windows
+# 1. 创建 .env 设置密钥
+echo "JWT_SECRET=$(openssl rand -base64 64)" > .env
 
-# PM2 管理（如果安装了 PM2）
-pm2 status              # 查看状态
-pm2 logs file-share     # 查看日志
-pm2 restart file-share  # 重启服务
-pm2 stop file-share     # 停止服务
+# 2. 启动
+docker-compose up -d
 
-# 开机自启（Linux）
-pm2 startup
-pm2 save
+# 访问 http://localhost:8080
+```
+
+#### Docker 离线部署
+
+适用于无外网的内网环境：
+
+```bash
+# 1. 导入镜像
+docker load -i file_manage-images.tar
+
+# 2. 创建 .env 设置密钥
+echo "JWT_SECRET=$(openssl rand -base64 64)" > .env
+
+# 3. 启动
+docker-compose -f docker-compose.offline.yml up -d
 ```
 
 ---
 
-## 开发环境
-
-### Docker 方式
+## 服务管理
 
 ```bash
-docker-compose up -d
-# 访问 http://localhost:8080
+# 停止服务（非 Docker）
+./stop.sh          # Linux/macOS
+stop.bat           # Windows
+
+# PM2 管理
+pm2 status              # 查看状态
+pm2 logs file-share     # 查看日志
+pm2 restart file-share  # 重启
+pm2 stop file-share     # 停止
+
+# 开机自启（Linux）
+pm2 startup && pm2 save
+
+# Docker 管理
+docker-compose down              # 停止
+docker-compose restart           # 重启
+docker-compose logs -f backend   # 查看日志
 ```
+
+---
+
+## 使用说明
+
+### 普通用户
+
+1. **上传文件** — Upload 页面，拖拽或选择文件上传
+2. **管理文件** — Files 页面查看、搜索、下载、删除
+3. **分享文件** — 点击 Get Link 生成公开下载链接
+4. **修改密码** — 右上角用户菜单 → Change Password
+
+### 管理员
+
+在普通用户功能基础上：
+
+1. **用户管理** — Users 页面创建/删除用户、分配角色
+2. **重置密码** — Users 页面为用户重置密码
+3. **全局管理** — 可查看和管理所有用户的文件
+
+---
+
+## 安全建议
+
+### 部署脚本已自动完成
+
+- JWT_SECRET 随机生成
+- Helmet 安全响应头
+- 登录限流（15 分钟 10 次）
+- 密码复杂度要求（≥8 位，大小写+数字）
+- 危险文件类型拦截
+- 操作审计日志
+
+### 生产环境建议额外配置
+
+1. **配置 HTTPS** — Nginx 反代 + SSL 证书
+2. **限制访问 IP** — 仅允许内网访问
+3. **定期备份** — 数据库 + 上传文件
+4. **依赖审计** — 定期执行 `npm audit`
+
+---
+
+## 备份与恢复
+
+```bash
+# 备份（非 Docker）
+cp backend/database.sqlite ./backup/
+cp -r backend/uploads/ ./backup/uploads/
+
+# 备份（Docker）
+docker cp file-share-backend:/app/data/database.sqlite ./backup/
+cp -r backend/uploads/ ./backup/uploads/
+
+# 重置数据库（Docker，⚠️ 会删除所有数据）
+docker-compose -f docker-compose.offline.yml down -v
+docker-compose -f docker-compose.offline.yml up -d
+```
+
+---
+
+<details>
+<summary><b>开发环境</b></summary>
 
 ### 手动启动
 
-**终端 1 - 后端：**
-
 ```bash
-cd backend
-npm install
-npm run dev
-# 运行在 http://localhost:3000
-```
+# 终端 1 - 后端
+cd backend && npm install && npm run dev    # http://localhost:3000
 
-**终端 2 - 前端：**
-
-```bash
-cd frontend
-npm install
-npm run dev
-# 运行在 http://localhost:5173
+# 终端 2 - 前端
+cd frontend && npm install && npm run dev   # http://localhost:5173
 ```
 
 ### 环境变量
 
-后端 `.env` 配置：
+后端 `backend/.env`：
 
 | 变量 | 说明 | 默认值 |
 |------|------|--------|
@@ -229,176 +194,110 @@ npm run dev
 | MAX_FILE_SIZE | 最大文件大小（字节） | 104857600 (100MB) |
 | DATABASE_PATH | 数据库路径 | ./database.sqlite |
 | NODE_ENV | 运行环境 | development |
+| CORS_ORIGIN | 允许的跨域来源 | * |
 
----
-
-## 构建与打包
-
-代码修改后，重新构建离线部署包：
+### 构建离线部署包
 
 ```bash
-# 方法一：运行打包脚本（Windows）
+# Windows
 build-and-package.bat
 
-# 方法二：手动执行
-cd backend
-docker build -t file_manage-backend:latest .
-cd ../frontend
-docker build -t file_manage-frontend:latest .
-cd ..
-docker save -o file_manage-images.tar file_manage-backend:latest file_manage-frontend:latest
+# 手动
+cd backend && docker build -t file_manage-backend:latest .
+cd ../frontend && docker build -t file_manage-frontend:latest .
+cd .. && docker save -o file_manage-images.tar file_manage-backend:latest file_manage-frontend:latest
 ```
 
----
+</details>
 
-## 使用说明
+<details>
+<summary><b>技术细节</b></summary>
 
-### 普通用户
+### 技术栈
 
-1. **上传文件**：进入 Upload 页面，拖拽或选择文件上传，获得分享链接
-2. **管理文件**：在 Files 页面查看、搜索、下载、删除文件
-3. **分享文件**：点击 Get Link 获取链接，分享给任何人（无需登录即可下载）
-4. **修改密码**：右上角用户菜单 → Change Password
+| 层级 | 技术 |
+|------|------|
+| 后端 | Node.js + Express |
+| 数据库 | SQLite (better-sqlite3) |
+| 认证 | JWT + bcryptjs |
+| 文件处理 | Multer |
+| 前端 | Vue 3 + Element Plus + Pinia |
+| 构建 | Vite |
+| 部署 | Docker + Nginx / PM2 |
 
-### 管理员
+### 项目结构
 
-在普通用户功能基础上：
+```
+file_manage/
+├── backend/
+│   ├── src/
+│   │   ├── config/          # 数据库配置
+│   │   ├── controllers/     # 控制器 (auth/file/user)
+│   │   ├── middleware/      # 认证中间件
+│   │   ├── models/          # 数据模型 (User/File/DownloadLog/AuditLog)
+│   │   ├── routes/          # 路由 (auth/files/users)
+│   │   ├── utils/           # 工具函数 (文件名处理/密码校验)
+│   │   └── app.js           # 应用入口
+│   ├── uploads/             # 文件存储目录
+│   └── .env                 # 环境变量
+├── frontend/
+│   ├── src/
+│   │   ├── api/             # API 请求封装
+│   │   ├── views/           # 页面组件
+│   │   ├── router/          # 路由配置
+│   │   ├── store/           # Pinia 状态管理
+│   │   └── i18n/            # 国际化
+│   └── nginx.conf           # Nginx 配置
+├── deploy.sh / deploy.bat   # 一键部署脚本
+├── stop.sh / stop.bat       # 停止服务脚本
+├── docker-compose.yml       # Docker 开发部署
+└── docker-compose.offline.yml  # Docker 离线部署
+```
 
-1. **用户管理**：在 Users 页面创建/删除用户、分配角色
-2. **重置密码**：在 Users 页面点击 Reset Password 为用户重置密码
-3. **全局文件管理**：可查看和管理所有用户的文件
+### 数据库表结构
 
----
+- **users** — id, username(UNIQUE), password(bcrypt), role(admin/user), created_at
+- **files** — id, file_id(UNIQUE), original_name, stored_name, file_size, mime_type, uploader_id(FK), upload_time, download_count
+- **download_logs** — id, file_id(FK), user_id(FK, nullable), download_time, ip_address
+- **audit_logs** — id, user_id, username, action, target_type, target_id, detail, ip_address, created_at
+- **token_blacklist** — id, token_jti(UNIQUE), expires_at, created_at
 
-## API 接口
-
-### 认证
+### API 接口
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
 | POST | `/api/auth/login` | 登录 | 公开 |
+| POST | `/api/auth/logout` | 登出 | 登录 |
 | POST | `/api/auth/register` | 注册 | 管理员 |
 | GET | `/api/auth/me` | 当前用户信息 | 登录 |
-
-### 文件
-
-| 方法 | 路径 | 说明 | 权限 |
-|------|------|------|------|
 | POST | `/api/files/upload` | 上传文件 | 登录 |
-| GET | `/api/files` | 文件列表 | 登录 |
+| GET | `/api/files?page=1&pageSize=20` | 文件列表（分页） | 登录 |
 | GET | `/api/files/search?keyword=xxx` | 搜索文件 | 登录 |
-| GET | `/api/files/:fileId` | 文件详情 | 登录 |
 | GET | `/api/files/:fileId/download` | 下载文件 | 登录 |
 | GET | `/api/files/:fileId/public-download` | 公开下载 | 公开 |
 | GET | `/api/files/:fileId/share-link` | 获取分享链接 | 登录 |
 | GET | `/api/files/:fileId/logs` | 下载日志 | 登录 |
 | DELETE | `/api/files/:fileId` | 删除文件 | 所有者/管理员 |
-
-### 用户管理
-
-| 方法 | 路径 | 说明 | 权限 |
-|------|------|------|------|
 | GET | `/api/users` | 用户列表 | 管理员 |
 | POST | `/api/users` | 创建用户 | 管理员 |
 | DELETE | `/api/users/:userId` | 删除用户 | 管理员 |
-| PUT | `/api/users/change-password` | 修改自己的密码 | 登录 |
-| PUT | `/api/users/:userId/reset-password` | 重置用户密码 | 管理员 |
+| PUT | `/api/users/change-password` | 修改密码 | 登录 |
+| PUT | `/api/users/:userId/reset-password` | 重置密码 | 管理员 |
+| GET | `/api/health` | 健康检查 | 公开 |
 
-### 健康检查
-
-| 方法 | 路径 | 说明 | 权限 |
-|------|------|------|------|
-| GET | `/api/health` | 服务状态 | 公开 |
-
----
-
-## 数据库
-
-### 表结构
-
-**users**：id, username(UNIQUE), password(bcrypt), role(admin/user), created_at
-
-**files**：id, file_id(UNIQUE), original_name, stored_name, file_size, mime_type, uploader_id(FK), upload_time, download_count
-
-**download_logs**：id, file_id(FK), user_id(FK, 可为NULL), download_time, ip_address
-
-### 重置数据库
-
-```bash
-docker-compose -f docker-compose.offline.yml down -v
-docker-compose -f docker-compose.offline.yml up -d
-```
-
-> 注意：`-v` 会删除所有数据（数据库 + 上传的文件记录），请谨慎使用。
-
-### 备份
-
-```bash
-# 备份数据库
-docker cp file-share-backend:/app/data/database.sqlite ./backup/
-
-# 备份上传文件
-cp -r backend/uploads/ ./backup/uploads/
-```
-
----
-
-## 安全建议
-
-### 生产环境必做
-
-1. **修改 JWT_SECRET** — 使用 `openssl rand -base64 64` 生成
-2. **修改默认管理员密码** — 首次登录后立即修改
-3. **配置 HTTPS** — 使用 Nginx + SSL 证书
-4. **限制访问 IP** — 仅允许内网访问
-
-### 推荐加固
-
-- 配置 CORS 限制允许的域名
-- 添加速率限制防止暴力破解
-- 定期备份数据库和文件
-- 定期执行 `npm audit` 检查依赖漏洞
+</details>
 
 ---
 
 ## 故障排除
 
-### 容器无法启动
-
-```bash
-# 查看日志
-docker-compose -f docker-compose.offline.yml logs
-
-# 检查端口占用
-netstat -ano | findstr :8080
-netstat -ano | findstr :3000
-```
-
-### 前端页面空白
-
-```bash
-# 重新构建前端镜像
-cd frontend
-docker build --no-cache -t file_manage-frontend:latest .
-docker-compose -f docker-compose.offline.yml up -d
-```
-
-### 文件上传失败
-
-- 检查文件是否超过 100MB 限制
-- 检查磁盘空间：`docker exec file-share-backend df -h`
-
-### 无法登录
-
-- 确认 JWT_SECRET 配置正确
-- 重置数据库：`docker-compose -f docker-compose.offline.yml down -v && docker-compose -f docker-compose.offline.yml up -d`
-
-### 数据库错误
-
-```bash
-# 检查完整性
-docker exec file-share-backend sqlite3 /app/data/database.sqlite "PRAGMA integrity_check;"
-```
+| 问题 | 解决方法 |
+|------|----------|
+| 端口被占用 | `lsof -i :3000`（Linux）或 `netstat -ano \| findstr :3000`（Windows）查找并结束进程 |
+| 前端页面空白 | 确认 `frontend/dist/` 已构建，重新运行 `cd frontend && npm run build` |
+| 文件上传失败 | 检查文件大小限制（默认 500MB）和磁盘剩余空间 |
+| 无法登录 | 确认 JWT_SECRET 已配置；删除 `database.sqlite` 重启可重建默认账户 |
+| Docker 容器启动失败 | `docker-compose logs` 查看日志 |
 
 ---
 
