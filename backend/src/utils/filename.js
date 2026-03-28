@@ -1,15 +1,30 @@
 const path = require('path');
 
+/**
+ * 去除文件名中的路径部分和控制字符
+ * @param {string} filename - 原始文件名
+ * @returns {string} 清理后的文件名
+ */
 function stripPathAndControls(filename) {
   const base = path.basename(String(filename || ''));
   // Remove NUL and other control chars that can confuse logs/headers.
   return base.replace(/[\u0000-\u001F\u007F]/g, '').trim();
 }
 
+/**
+ * 将 Latin1 编码的字符串重新解释为 UTF-8 编码
+ * @param {string} str - Latin1 编码的字符串
+ * @returns {string} 以 UTF-8 解码后的字符串
+ */
 function latin1ToUtf8(str) {
   return Buffer.from(str, 'latin1').toString('utf8');
 }
 
+/**
+ * CP1252 编码中 Unicode 码点到字节值的映射表
+ * 用于处理 0x80-0x9F 范围内 CP1252 特有的字符
+ * @type {Map<number, number>}
+ */
 const CP1252_UNICODE_TO_BYTE = new Map([
   [0x20AC, 0x80],
   [0x201A, 0x82],
@@ -40,8 +55,17 @@ const CP1252_UNICODE_TO_BYTE = new Map([
   [0x0178, 0x9F]
 ]);
 
+/**
+ * CP1252 编码中字节值到 Unicode 码点的反向映射表
+ * @type {Map<number, number>}
+ */
 const CP1252_BYTE_TO_UNICODE = new Map(Array.from(CP1252_UNICODE_TO_BYTE.entries()).map(([u, b]) => [b, u]));
 
+/**
+ * 将类二进制字符串（每个字符的码点 <= 0xFF 或属于 CP1252 特殊字符）转换为字节 Buffer
+ * @param {string} str - 类二进制字符串
+ * @returns {Buffer|null} 转换后的 Buffer，如果字符串中包含无法映射的字符则返回 null
+ */
 function bytesFromBinaryishString(str) {
   const bytes = [];
   for (let i = 0; i < str.length; i++) {
@@ -64,17 +88,34 @@ function bytesFromBinaryishString(str) {
   return Buffer.from(bytes);
 }
 
+/**
+ * 尝试将类二进制字符串解码为 UTF-8 字符串
+ * @param {string} str - 类二进制字符串
+ * @returns {string|null} 解码后的 UTF-8 字符串，失败时返回 null
+ */
 function binaryishToUtf8(str) {
   const buf = bytesFromBinaryishString(str);
   if (!buf) return null;
   return buf.toString('utf8');
 }
 
+/**
+ * 检测字符串中是否包含 CJK（中日韩）字符
+ * @param {string} str - 待检测字符串
+ * @returns {boolean} 是否包含 CJK 字符
+ */
 function hasCJK(str) {
   // CJK Unified Ideographs + common adjacent blocks for Japanese/Korean.
   return /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF]/.test(str);
 }
 
+/**
+ * 规范化上传的文件名
+ * 处理 multer/busboy 中 Latin1 乱码、百分号编码等常见文件名编码问题，
+ * 尝试将乱码文件名恢复为正确的 UTF-8 中文文件名
+ * @param {string} filename - 原始文件名（可能是乱码）
+ * @returns {string} 修正后的文件名
+ */
 function normalizeUploadedFilename(filename) {
   const cleaned = stripPathAndControls(filename);
   if (!cleaned) return 'file';
@@ -101,6 +142,12 @@ function normalizeUploadedFilename(filename) {
   return cleaned;
 }
 
+/**
+ * 安全地提取文件扩展名
+ * 仅允许由点号加 1-12 个字母数字组成的扩展名
+ * @param {string} filename - 文件名
+ * @returns {string} 安全的文件扩展名，不符合格式则返回空字符串
+ */
 function safeExtname(filename) {
   const ext = path.extname(filename || '');
   // Keep a conservative subset: dot + up to 12 alnum chars.
@@ -109,10 +156,22 @@ function safeExtname(filename) {
   return ext;
 }
 
+/**
+ * 将 UTF-8 字符串转换为 Latin1 乱码形式
+ * 用于在数据库中搜索可能以 Latin1 乱码存储的文件名
+ * @param {string} utf8String - UTF-8 编码的字符串
+ * @returns {string} Latin1 乱码形式的字符串
+ */
 function toLatin1MojibakeFromUtf8(utf8String) {
   return Buffer.from(String(utf8String || ''), 'utf8').toString('latin1');
 }
 
+/**
+ * 将 UTF-8 字符串转换为 CP1252 乱码形式
+ * 在 Latin1 乱码基础上，将 0x80-0x9F 范围的字节替换为对应的 CP1252 Unicode 字符
+ * @param {string} utf8String - UTF-8 编码的字符串
+ * @returns {string} CP1252 乱码形式的字符串
+ */
 function toCp1252MojibakeFromUtf8(utf8String) {
   const latin1 = toLatin1MojibakeFromUtf8(utf8String);
   let out = '';

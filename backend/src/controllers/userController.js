@@ -6,6 +6,11 @@ const path = require('path');
 const fs = require('fs');
 
 class UserController {
+  /**
+   * 获取所有用户列表
+   * @param {import('express').Request} req - 请求对象
+   * @param {import('express').Response} res - 响应对象，返回用户数组
+   */
   static getAll(req, res) {
     try {
       const users = User.getAll();
@@ -16,6 +21,12 @@ class UserController {
     }
   }
 
+  /**
+   * 创建新用户（管理员操作）
+   * 校验用户名格式和密码复杂度，检查用户名是否已存在，创建后记录审计日志
+   * @param {import('express').Request} req - 请求对象，body 中需包含 username、password，可选 role
+   * @param {import('express').Response} res - 响应对象，成功时返回 201 及新用户 ID
+   */
   static create(req, res) {
     try {
       const { username, password, role } = req.body;
@@ -64,6 +75,12 @@ class UserController {
     }
   }
 
+  /**
+   * 删除用户（管理员操作）
+   * 不允许删除自己，删除时同时清理用户上传的所有文件（磁盘 + 数据库），并记录审计日志
+   * @param {import('express').Request} req - 请求对象，params 中需包含 userId
+   * @param {import('express').Response} res - 响应对象，返回删除成功消息
+   */
   static delete(req, res) {
     try {
       const { userId } = req.params;
@@ -107,6 +124,12 @@ class UserController {
     }
   }
 
+  /**
+   * 修改当前用户密码
+   * 验证旧密码，检查新密码复杂度，更新后将当前令牌加入黑名单使其失效
+   * @param {import('express').Request} req - 请求对象，body 中需包含 currentPassword 和 newPassword
+   * @param {import('express').Response} res - 响应对象，返回密码修改成功消息
+   */
   static changePassword(req, res) {
     try {
       const { currentPassword, newPassword } = req.body;
@@ -161,6 +184,12 @@ class UserController {
     }
   }
 
+  /**
+   * 重置指定用户的密码（管理员操作）
+   * 校验新密码复杂度，更新用户密码并记录审计日志
+   * @param {import('express').Request} req - 请求对象，params 中需包含 userId，body 中需包含 newPassword
+   * @param {import('express').Response} res - 响应对象，返回密码重置成功消息
+   */
   static resetPassword(req, res) {
     try {
       const { userId } = req.params;

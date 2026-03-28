@@ -51,6 +51,11 @@
 </template>
 
 <script setup>
+/**
+ * 文件上传页面
+ * 提供拖拽或点击上传功能，支持文件大小校验（最大 100MB）、
+ * 上传进度显示，上传成功后展示公开分享链接并支持一键复制。
+ */
 import { ref } from 'vue';
 import { UploadFilled } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';

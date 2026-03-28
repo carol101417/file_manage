@@ -3,12 +3,23 @@ const path = require('path');
 require('dotenv').config();
 
 const dbPath = path.join(__dirname, '../../', process.env.DATABASE_PATH || 'database.sqlite');
+
+/**
+ * SQLite 数据库实例
+ * 使用 better-sqlite3 创建，路径由环境变量 DATABASE_PATH 配置
+ * @type {import('better-sqlite3').Database}
+ */
 const db = new Database(dbPath);
 
 // Enable foreign keys
 db.pragma('foreign_keys = ON');
 
-// Create tables
+/**
+ * 初始化数据库
+ * 创建所有必要的数据表（users、files、download_logs、token_blacklist、audit_logs）
+ * 并建立性能索引。如果表已存在则不会重复创建。
+ * @returns {void}
+ */
 const initDatabase = () => {
   // Users table
   db.exec(`

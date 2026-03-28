@@ -6,7 +6,11 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
-// Dangerous file extensions blacklist
+/**
+ * 危险文件扩展名黑名单
+ * 禁止上传可执行脚本等高风险文件类型
+ * @type {Set<string>}
+ */
 const BLOCKED_EXTENSIONS = new Set([
   '.exe', '.bat', '.cmd', '.com', '.msi', '.scr', '.pif',
   '.vbs', '.vbe', '.js', '.jse', '.wsf', '.wsh', '.ps1',
@@ -14,6 +18,12 @@ const BLOCKED_EXTENSIONS = new Set([
 ]);
 
 class FileController {
+  /**
+   * 上传文件
+   * 检查文件扩展名、磁盘空间，保存文件记录到数据库并记录审计日志
+   * @param {import('express').Request} req - 请求对象，req.file 由 multer 中间件提供
+   * @param {import('express').Response} res - 响应对象，成功时返回 201 及文件信息和分享链接
+   */
   static upload(req, res) {
     try {
       if (!req.file) {
@@ -87,6 +97,12 @@ class FileController {
     }
   }
 
+  /**
+   * 获取文件列表（分页）
+   * 管理员可查看全部文件，普通用户仅查看自己上传的文件
+   * @param {import('express').Request} req - 请求对象，query 中可传 page 和 pageSize
+   * @param {import('express').Response} res - 响应对象，返回分页文件列表
+   */
   static getAll(req, res) {
     try {
       const page = parseInt(req.query.page) || 1;
@@ -101,6 +117,12 @@ class FileController {
     }
   }
 
+  /**
+   * 根据文件 ID 获取文件详情
+   * 仅文件所有者或管理员可访问
+   * @param {import('express').Request} req - 请求对象，params 中需包含 fileId
+   * @param {import('express').Response} res - 响应对象，返回文件详情 JSON
+   */
   static getById(req, res) {
     try {
       const { fileId } = req.params;
@@ -124,6 +146,12 @@ class FileController {
     }
   }
 
+  /**
+   * 下载文件（需登录）
+   * 记录下载日志并增加下载计数
+   * @param {import('express').Request} req - 请求对象，params 中需包含 fileId
+   * @param {import('express').Response} res - 响应对象，以附件形式发送文件
+   */
   static download(req, res) {
     try {
       const { fileId } = req.params;
@@ -150,6 +178,12 @@ class FileController {
     }
   }
 
+  /**
+   * 公开下载文件（无需登录）
+   * 通过分享链接下载，记录下载日志并增加下载计数，设置 UTF-8 文件名头
+   * @param {import('express').Request} req - 请求对象，params 中需包含 fileId
+   * @param {import('express').Response} res - 响应对象，以附件形式发送文件
+   */
   static publicDownload(req, res) {
     try {
       const { fileId } = req.params;
@@ -180,6 +214,12 @@ class FileController {
     }
   }
 
+  /**
+   * 删除文件
+   * 仅文件所有者或管理员可操作，同时删除磁盘上的物理文件并记录审计日志
+   * @param {import('express').Request} req - 请求对象，params 中需包含 fileId
+   * @param {import('express').Response} res - 响应对象，返回删除成功消息
+   */
   static delete(req, res) {
     try {
       const { fileId } = req.params;
@@ -222,6 +262,12 @@ class FileController {
     }
   }
 
+  /**
+   * 搜索文件
+   * 按关键字搜索文件名，支持分页，管理员可搜索全部文件
+   * @param {import('express').Request} req - 请求对象，query 中需包含 keyword，可选 page 和 pageSize
+   * @param {import('express').Response} res - 响应对象，返回搜索结果的分页列表
+   */
   static search(req, res) {
     try {
       const { keyword } = req.query;
@@ -242,6 +288,12 @@ class FileController {
     }
   }
 
+  /**
+   * 获取文件的公开分享链接
+   * 仅文件所有者或管理员可获取
+   * @param {import('express').Request} req - 请求对象，params 中需包含 fileId
+   * @param {import('express').Response} res - 响应对象，返回包含 shareLink 的 JSON
+   */
   static getShareLink(req, res) {
     try {
       const { fileId } = req.params;
@@ -267,6 +319,12 @@ class FileController {
     }
   }
 
+  /**
+   * 获取文件的下载日志
+   * 仅文件所有者或管理员可查看
+   * @param {import('express').Request} req - 请求对象，params 中需包含 fileId
+   * @param {import('express').Response} res - 响应对象，返回下载日志数组
+   */
   static getDownloadLogs(req, res) {
     try {
       const { fileId } = req.params;

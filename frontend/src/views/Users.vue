@@ -84,6 +84,11 @@
 </template>
 
 <script setup>
+/**
+ * 用户管理页面（仅管理员可访问）
+ * 提供用户列表展示、创建新用户、删除用户、重置用户密码等管理功能，
+ * 不允许管理员删除自己的账户。
+ */
 import { ref, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useAuthStore } from '../store/auth';

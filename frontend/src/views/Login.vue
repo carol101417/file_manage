@@ -23,6 +23,11 @@
 </template>
 
 <script setup>
+/**
+ * 登录页面
+ * 提供用户名和密码输入表单，通过认证 Store 调用登录接口，
+ * 登录成功后跳转至首页，失败时显示错误提示。
+ */
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../store/auth';

@@ -64,6 +64,11 @@
 </template>
 
 <script setup>
+/**
+ * 文件管理页面
+ * 提供文件列表的分页展示、关键字搜索、文件下载、分享链接获取、
+ * 文件删除等功能，支持从响应头中解析 UTF-8 文件名。
+ */
 import { ref, onMounted } from 'vue';
 import { Search } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';

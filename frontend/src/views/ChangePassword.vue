@@ -28,6 +28,11 @@
 </template>
 
 <script setup>
+/**
+ * 修改密码页面
+ * 提供当前密码验证和新密码设置功能，包含确认密码一致性校验，
+ * 修改成功后跳转至首页。
+ */
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';

@@ -1,3 +1,8 @@
+/**
+ * @file 应用程序入口文件
+ * 配置并启动 Express 服务器，包括中间件设置、数据库初始化、
+ * 默认管理员创建、令牌黑名单清理、API 路由注册及前端静态文件托管。
+ */
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -47,14 +52,20 @@ if (!User.exists()) {
   console.log('IMPORTANT: Please change the default password after first login!');
 }
 
-// Cleanup expired token blacklist entries on startup and every hour
+/**
+ * 清理已过期的令牌黑名单条目
+ * 在应用启动时执行一次，之后每小时自动执行
+ * @returns {void}
+ */
 const cleanupBlacklist = () => {
   try {
     db.prepare("DELETE FROM token_blacklist WHERE expires_at < datetime('now')").run();
   } catch (e) { /* table may not exist yet on first run */ }
 };
 cleanupBlacklist();
-setInterval(cleanupBlacklist, 60 * 60 * 1000);
+if (process.env.NODE_ENV !== 'test') {
+  setInterval(cleanupBlacklist, 60 * 60 * 1000);
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -83,9 +94,11 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`API available at http://localhost:${PORT}/api`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+    console.log(`API available at http://localhost:${PORT}/api`);
+  });
+}
 
 module.exports = app;

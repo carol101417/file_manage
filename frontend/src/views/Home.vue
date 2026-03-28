@@ -75,6 +75,12 @@
 </template>
 
 <script setup>
+/**
+ * 首页仪表盘
+ * 展示文件总数、下载总次数、总存储空间等统计信息，
+ * 提供上传文件、查看文件、管理用户等快捷操作入口，
+ * 并展示最近上传的文件列表。
+ */
 import { ref, onMounted } from 'vue';
 import { Document, Download, FolderOpened } from '@element-plus/icons-vue';
 import { useAuthStore } from '../store/auth';

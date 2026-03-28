@@ -6,6 +6,12 @@ const { db } = require('../config/database');
 const { validatePasswordComplexity, getClientIp } = require('../utils/validation');
 
 class AuthController {
+  /**
+   * 用户登录
+   * 验证用户名和密码，成功后签发 JWT 令牌并记录审计日志
+   * @param {import('express').Request} req - 请求对象，body 中需包含 username 和 password
+   * @param {import('express').Response} res - 响应对象，成功时返回 token 和用户信息
+   */
   static login(req, res) {
     try {
       const { username, password } = req.body;
@@ -66,6 +72,12 @@ class AuthController {
     }
   }
 
+  /**
+   * 注册新用户
+   * 校验用户名格式和密码复杂度，创建用户并记录审计日志
+   * @param {import('express').Request} req - 请求对象，body 中需包含 username、password，可选 role
+   * @param {import('express').Response} res - 响应对象，成功时返回 201 及新用户 ID
+   */
   static register(req, res) {
     try {
       const { username, password, role } = req.body;
@@ -114,6 +126,12 @@ class AuthController {
     }
   }
 
+  /**
+   * 获取当前登录用户信息
+   * 根据 JWT 中的用户 ID 查询并返回用户资料
+   * @param {import('express').Request} req - 请求对象，需已通过认证中间件（req.user 已设置）
+   * @param {import('express').Response} res - 响应对象，返回用户信息 JSON
+   */
   static getMe(req, res) {
     try {
       const user = User.findById(req.user.id);
@@ -129,6 +147,12 @@ class AuthController {
     }
   }
 
+  /**
+   * 用户登出
+   * 将当前令牌的 JTI 加入黑名单，使其失效，并记录审计日志
+   * @param {import('express').Request} req - 请求对象，需已通过认证中间件
+   * @param {import('express').Response} res - 响应对象，返回登出成功消息
+   */
   static logout(req, res) {
     try {
       const decoded = jwt.decode(req.token);
